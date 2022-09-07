@@ -30,7 +30,8 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             children: [
               if (isMe)
                 Text(
@@ -39,6 +40,10 @@ class MessageBubble extends StatelessWidget {
                     fontSize: 12,
                     color: Colors.black54,
                   ),
+                ),
+              if (isMe)
+                const SizedBox(
+                  width: 10,
                 ),
               Material(
                 elevation: 5,
@@ -65,6 +70,10 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
               ),
+              if (!isMe)
+                const SizedBox(
+                  width: 10,
+                ),
               if (!isMe)
                 Text(
                   '${time.toDate().hour}:${time.toDate().minute}',
