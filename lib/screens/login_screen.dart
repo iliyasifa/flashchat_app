@@ -77,7 +77,8 @@ class LoginScreenState extends State<LoginScreen> {
                     );
                     if (!mounted) return;
                     if (user.toString().isNotEmpty) {
-                      Navigator.of(context).pushNamed(ChatScreen.id);
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          ChatScreen.id, (route) => false);
                     }
                   } catch (e) {
                     debugPrint('$e');

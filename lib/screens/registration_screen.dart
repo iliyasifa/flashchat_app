@@ -85,7 +85,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                     );
                     if (!mounted) return;
                     if (newUser.toString().isNotEmpty) {
-                      Navigator.of(context).pushNamed(ChatScreen.id);
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          ChatScreen.id, (route) => false);
                     }
                   } catch (e) {
                     debugPrint('$e');
