@@ -1,5 +1,4 @@
 import 'package:flashchat_app/components/rounded_button.dart';
-import 'package:flashchat_app/components/app_logo.dart';
 import 'package:flashchat_app/constants/app_theme.dart';
 import 'package:flashchat_app/constants/constants.dart';
 import 'package:flashchat_app/providers/providers.dart';
@@ -7,19 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  static const String id = 'login_screen';
-  const LoginScreen({Key? key}) : super(key: key);
+class PhoneLoginScreen extends ConsumerStatefulWidget {
+  const PhoneLoginScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<LoginScreen> createState() => LoginScreenState();
+  ConsumerState<PhoneLoginScreen> createState() => _PhoneLoginScreenState();
 }
 
-class LoginScreenState extends ConsumerState<LoginScreen> {
+class _PhoneLoginScreenState extends ConsumerState<PhoneLoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  String email = '';
-  String password = '';
-  bool _obscurePassword = true;
+  String _phoneNumber = '';
 
   @override
   Widget build(BuildContext context) {
@@ -62,16 +58,29 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20),
-                // Logo
-                const Center(
-                  child: Hero(
-                    tag: 'logo',
-                    child: AppLogo(size: 72),
+                // Icon
+                Center(
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.online.withValues(alpha: 0.15),
+                      border: Border.all(
+                        color: AppColors.online.withValues(alpha: 0.3),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.phone_android_rounded,
+                      size: 36,
+                      color: AppColors.online,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
                 const Text(
-                  'Welcome back',
+                  'Phone Sign In',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 28,
@@ -82,90 +91,71 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Sign in to continue chatting',
+                  'Enter your phone number with country code\n(e.g. +1 555-0100)',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.textSecondary,
+                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 40),
-                // Email field
                 TextFormField(
                   textAlign: TextAlign.center,
-                  keyboardType: TextInputType.emailAddress,
+                  keyboardType: TextInputType.phone,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 15,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.5,
                   ),
-                  onChanged: (value) => email = value.trim(),
+                  onChanged: (value) => _phoneNumber = value.trim(),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your email';
+                      return 'Please enter your phone number';
                     }
-                    final emailRegex = RegExp(
-                      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                    );
-                    if (!emailRegex.hasMatch(value.trim())) {
-                      return 'Please enter a valid email address';
+                    if (!value.trim().startsWith('+')) {
+                      return 'Include country code starting with +';
                     }
                     return null;
                   },
                   decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Email address',
-                    prefixIcon: const Icon(Icons.email_outlined,
-                        color: AppColors.textMuted, size: 20),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Password field
-                TextFormField(
-                  textAlign: TextAlign.center,
-                  obscureText: _obscurePassword,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 15,
-                  ),
-                  onChanged: (value) => password = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                  decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline_rounded,
-                        color: AppColors.textMuted, size: 20),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.textMuted,
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
-                      },
+                    hintText: '+1 555 010 0000',
+                    hintStyle: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 18,
+                      letterSpacing: 1.5,
                     ),
+                    prefixIcon: const Icon(Icons.phone_outlined,
+                        color: AppColors.textMuted, size: 20),
                   ),
                 ),
                 const SizedBox(height: 24),
                 RoundedButton(
-                  title: 'Sign In',
-                  useGradient: true,
+                  title: 'Send Code',
+                  color: AppColors.online.withValues(alpha: 0.8),
                   isLoading: isLoading,
+                  icon: Icons.send_rounded,
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      final success = await ref
+                      await ref
                           .read(authControllerProvider.notifier)
-                          .login(email, password);
-                      if (!context.mounted) return;
-                      if (success) context.go('/conversations');
+                          .verifyPhone(
+                            phoneNumber: _phoneNumber,
+                            onCodeSent: (verificationId) {
+                              context.push(
+                                '/phone-verify?verificationId=$verificationId&phone=${Uri.encodeComponent(_phoneNumber)}',
+                              );
+                            },
+                            onFailed: (errorMessage) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(errorMessage),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            },
+                          );
                     }
                   },
                 ),

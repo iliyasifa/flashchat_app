@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /messages/{messageId} {
+      // Allow authenticated users to read chat history
+      allow read: if request.auth != null;
+
+      // Allow authenticated users to create messages under strict conditions:
+      // 1. Must be logged in.
+      // 2. The sender in the message payload must match the authenticated user's email, phone number, or UID.
+      // 3. Message text must be a string between 1 and 1000 characters.
+      // 4. created_at must be a valid timestamp.
+      allow create: if request.auth != null
+                    && (
+                      (request.auth.token.email != null && request.resource.data.sender == request.auth.token.email) ||
+                      (request.auth.token.phone_number != null && request.resource.data.sender == request.auth.token.phone_number) ||
+                      (request.resource.data.sender == request.auth.uid)
+                    )
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 1000
+                    && request.resource.data.created_at is timestamp;
+
+      // Messages cannot be updated or deleted by users to maintain chat history integrity
+      allow update, delete: if false;
+    }
+
+    match /users/{userId} {
+      // Allow authenticated users to read user profiles (needed for search and conversations directory lookup)
+      allow read: if request.auth != null;
+
+      // Allow users to write/update only their own user profile
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

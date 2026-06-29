@@ -1,29 +1,79 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flashchat_app/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flashchat_app/components/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const FlashChat());
+  group('MessageBubble Widget Tests', () {
+    testWidgets('renders message text correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MessageBubble(
+              text: 'Hello test message',
+              sender: 'test@example.com',
+              isMe: true,
+              time: Timestamp.fromDate(DateTime(2026, 1, 1, 10, 5)),
+            ),
+          ),
+        ),
+      );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(find.text('Hello test message'), findsOneWidget);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    testWidgets('displays You for current user', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MessageBubble(
+              text: 'Hello',
+              sender: 'me@example.com',
+              isMe: true,
+              time: Timestamp.fromDate(DateTime(2026, 1, 1, 10, 5)),
+            ),
+          ),
+        ),
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(find.text('You'), findsOneWidget);
+    });
+
+    testWidgets('displays parsed sender username for other users',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MessageBubble(
+              text: 'Hello',
+              sender: 'john.doe@example.com',
+              isMe: false,
+              time: Timestamp.fromDate(DateTime(2026, 1, 1, 10, 5)),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('john.doe'), findsOneWidget);
+      expect(find.text('You'), findsNothing);
+    });
+
+    testWidgets('formats time string correctly with zero-padded minutes',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MessageBubble(
+              text: 'Hello',
+              sender: 'john.doe@example.com',
+              isMe: false,
+              time: Timestamp.fromDate(DateTime(2026, 1, 1, 10, 5)), // 10:05
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('10:05'), findsOneWidget);
+    });
   });
 }

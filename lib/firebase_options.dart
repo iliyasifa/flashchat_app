@@ -50,20 +50,18 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCoFfKGQs5SK7Xybi2Cl1qxfN7vlu-Qwi0',
-    appId: '1:303713699941:android:253b88dcaa87b592d5de8c',
-    messagingSenderId: '303713699941',
-    projectId: 'flutter-firestore-crud-1935b',
-    storageBucket: 'flutter-firestore-crud-1935b.appspot.com',
+    apiKey: 'AIzaSyASCvTfK2pyI1IsNPhnvtvX2pjn6GlKj9U',
+    appId: '1:353369476137:android:5644d0c53f3726f1882038',
+    messagingSenderId: '353369476137',
+    projectId: 'flashchat-app-fa7b37c',
+    storageBucket: 'flashchat-app-fa7b37c.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAWktlhYnprKZb45MJYVa6ozxLK3W_xmng',
-    appId: '1:303713699941:ios:54c3e2de170bbbc1d5de8c',
-    messagingSenderId: '303713699941',
-    projectId: 'flutter-firestore-crud-1935b',
-    storageBucket: 'flutter-firestore-crud-1935b.appspot.com',
-    iosClientId: '303713699941-qej97n643sjl1974vlr1mo2a8mu10m17.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAx35KlY8sBSoECATcSJCdWZNps4Qz81JU',
+    appId: '1:353369476137:ios:01896aa41367a97a882038',
+    messagingSenderId: '353369476137',
+    projectId: 'flashchat-app-fa7b37c',
+    storageBucket: 'flashchat-app-fa7b37c.firebasestorage.app',
     iosBundleId: 'com.example.flashchatApp',
   );
 }
